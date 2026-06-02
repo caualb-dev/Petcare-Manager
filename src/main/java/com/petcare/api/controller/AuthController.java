@@ -4,7 +4,6 @@ import com.petcare.api.dto.request.LoginRequest;
 import com.petcare.api.dto.request.RecuperarSenhaRequest;
 import com.petcare.api.dto.request.RedefinirSenhaRequest;
 import com.petcare.api.dto.response.LoginResponse;
-import com.petcare.api.model.entity.Usuario;
 import com.petcare.api.repository.UsuarioRepository;
 import com.petcare.api.service.TokenService;
 import com.petcare.api.service.UsuarioService;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired
@@ -37,8 +36,11 @@ public class AuthController {
         var usernamePassword = new UsernamePasswordAuthenticationToken(
                 request.username(), request.password()
         );
-        var auth = authenticationManager.authenticate(usernamePassword);
-        var usuario = (Usuario) auth.getPrincipal();
+        authenticationManager.authenticate(usernamePassword);
+
+        var usuario = usuarioRepository.findByUsername(request.username())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
         var token = tokenService.gerarToken(usuario);
 
         return ResponseEntity.ok(new LoginResponse(
