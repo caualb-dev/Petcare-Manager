@@ -31,6 +31,11 @@ public class ConsultaController {
         return ResponseEntity.ok(consultaService.listar(veterinarioId));
     }
 
+    @GetMapping("/pet/{petId}")
+    public ResponseEntity<List<ConsultaResponse>> listarPorPet(@PathVariable Long petId) {
+        return ResponseEntity.ok(consultaService.listarPorPet(petId));
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('VET')")
     public ResponseEntity<ConsultaResponse> atualizar(@PathVariable Long id,

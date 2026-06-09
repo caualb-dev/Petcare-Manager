@@ -13,8 +13,8 @@ public record ConsultaResponse(
         String status,
         Long petId,
         Long veterinarioId,
-        List<Long> sintomaIds,
-        List<Long> medicamentoIds
+        List<Long> sintomas,
+        List<Long> medicamentos
 ) {
     public static ConsultaResponse fromEntity(Consulta consulta) {
         return new ConsultaResponse(

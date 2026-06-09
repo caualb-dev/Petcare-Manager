@@ -16,5 +16,5 @@ public class Sintoma {
     private Long id;
 
     @Column(nullable = false)
-    private String descricao;
+    private String nome;
 }

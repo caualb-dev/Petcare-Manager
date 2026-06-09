@@ -1,7 +1,7 @@
 package com.petcare.api.security;
 
 import com.petcare.api.model.entity.Usuario;
-import com.petcare.api.service.UsuarioService;
+import com.petcare.api.repository.UsuarioRepository;
 import com.petcare.api.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,7 +22,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     private TokenService tokenService;
 
     @Autowired
-    private UsuarioService usuarioService;
+    private UsuarioRepository usuarioRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -35,7 +35,8 @@ public class SecurityFilter extends OncePerRequestFilter {
         if (token != null) {
             String username = tokenService.validarToken(token);
             if (username != null) {
-                Usuario usuario = (Usuario) usuarioService.loadUserByUsername(username);
+                Usuario usuario = usuarioRepository.findByUsername(username)
+                        .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
                 var authentication = new UsernamePasswordAuthenticationToken(
                         usuario, null, usuario.getAuthorities()

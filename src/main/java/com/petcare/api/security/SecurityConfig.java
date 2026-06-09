@@ -10,8 +10,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -30,27 +28,21 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Rotas públicas
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/recuperar-senha").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/redefinir-senha").permitAll()
-                        // Rotas só ADMIN
                         .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
-                        // Rotas ADMIN e FUNCIONARIO
+                        .requestMatchers("/api/veterinarios/**").hasRole("ADMIN")
                         .requestMatchers("/api/clientes/**").hasAnyRole("ADMIN", "FUNCIONARIO")
                         .requestMatchers("/api/pets/**").hasAnyRole("ADMIN", "FUNCIONARIO")
-                        .requestMatchers("/api/veterinarios/**").hasAnyRole("ADMIN", "FUNCIONARIO")
-                        // Rotas autenticadas (qualquer role)
                         .requestMatchers("/api/sintomas/**").authenticated()
                         .requestMatchers("/api/medicamentos/**").authenticated()
                         .requestMatchers("/api/consultas/**").authenticated()
-                        // Qualquer outra rota precisa estar autenticado
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(

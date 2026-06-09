@@ -17,4 +17,6 @@ public class Medicamento {
 
     @Column(nullable = false)
     private String nome;
+
+    private String dose;
 }
