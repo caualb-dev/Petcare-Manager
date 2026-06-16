@@ -1,37 +1,34 @@
 package com.petcare.api.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
-
-import java.util.Map;
 
 @Service
 public class EmailService {
 
-    @Value("${resend.api.key}")
-    private String apiKey;
+    @Autowired
+    private JavaMailSender mailSender;
 
-    private final RestClient restClient = RestClient.create();
+    @Value("${spring.mail.username}")
+    private String emailRemetente;
 
-    public void enviarLinkRecuperacao(String destinatario, String token) {
-        String link = "http://localhost:5173/redefinir-senha?token=" + token;
-
-        Map<String, Object> body = Map.of(
-                "from", "PetCare <onboarding@resend.dev>",
-                "to", destinatario,
-                "subject", "Redefinição de senha — PetCare Manager",
-                "html", "<p>Clique no link abaixo para redefinir sua senha:</p>" +
-                        "<a href='" + link + "'>" + link + "</a>" +
-                        "<p>Este link expira em 15 minutos.</p>"
+    public void enviarEmailRecuperacao(String emailDestino, String token) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(emailRemetente);
+        message.setTo(emailDestino);
+        message.setSubject("Redefinição de senha — PetCare Manager");
+        message.setText(
+                "Olá!\n\n" +
+                        "Recebemos uma solicitação para redefinir sua senha.\n\n" +
+                        "Clique no link abaixo para redefinir:\n" +
+                        "http://localhost:5173/redefinir-senha?token=" + token + "\n\n" +
+                        "Este link expira em 15 minutos.\n\n" +
+                        "Se não foi você, ignore este e-mail.\n\n" +
+                        "PetCare Manager"
         );
-
-        restClient.post()
-                .uri("https://api.resend.com/emails")
-                .header("Authorization", "Bearer " + apiKey)
-                .header("Content-Type", "application/json")
-                .body(body)
-                .retrieve()
-                .toBodilessEntity();
+        mailSender.send(message);
     }
 }

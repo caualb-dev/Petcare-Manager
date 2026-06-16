@@ -25,11 +25,6 @@ public class UsuarioService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return usuarioRepository.findByUsername(username)
-                .map(u -> org.springframework.security.core.userdetails.User
-                        .withUsername(u.getUsername())
-                        .password(u.getPassword())
-                        .roles(u.getRole().name())
-                        .build())
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
     }
 
@@ -76,7 +71,7 @@ public class UsuarioService implements UserDetailsService {
         usuario.setResetToken(token);
         usuario.setResetTokenExpiracao(LocalDateTime.now().plusMinutes(15));
         usuarioRepository.save(usuario);
-        emailService.enviarLinkRecuperacao(email, token);
+        emailService.enviarEmailRecuperacao(email, token);
     }
 
     public void redefinirSenha(String token, String novaSenha) {
