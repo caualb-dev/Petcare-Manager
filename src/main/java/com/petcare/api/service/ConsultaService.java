@@ -14,6 +14,7 @@ import com.petcare.api.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,16 +37,18 @@ public class ConsultaService {
         consulta.setVeterinario(vet);
         consulta.setData(request.data());
         consulta.setDescricao(request.descricao());
+        consulta.setDiagnostico(request.diagnostico());
+        consulta.setExames(request.exames());
         consulta.setStatus(StatusConsulta.ABERTA);
-        consulta.setSintomas(List.of());
-        consulta.setMedicamentos(List.of());
+        consulta.setSintomas(resolverSintomas(request.sintomas()));
+        consulta.setMedicamentos(resolverMedicamentos(request.medicamentos()));
 
         return ConsultaResponse.fromEntity(consultaRepository.save(consulta));
     }
 
     public List<ConsultaResponse> listar(Long veterinarioId) {
         if (veterinarioId != null) {
-            return consultaRepository.findByVeterinarioId(veterinarioId)
+            return consultaRepository.findByVeterinario_Id(veterinarioId)
                     .stream().map(ConsultaResponse::fromEntity).toList();
         }
         return consultaRepository.findAll()
@@ -53,7 +56,7 @@ public class ConsultaService {
     }
 
     public List<ConsultaResponse> listarPorPet(Long petId) {
-        return consultaRepository.findByPetId(petId)
+        return consultaRepository.findByPet_Id(petId)
                 .stream().map(ConsultaResponse::fromEntity).toList();
     }
 
@@ -65,14 +68,11 @@ public class ConsultaService {
             throw new BusinessException("Consulta finalizada ou cancelada não pode ser alterada");
         }
 
-        List<Sintoma> sintomas = request.sintomaIds() != null
-                ? sintomaRepository.findAllById(request.sintomaIds()) : List.of();
-        List<Medicamento> medicamentos = request.medicamentoIds() != null
-                ? medicamentoRepository.findAllById(request.medicamentoIds()) : List.of();
-
         consulta.setDescricao(request.descricao());
-        consulta.setSintomas(sintomas);
-        consulta.setMedicamentos(medicamentos);
+        consulta.setDiagnostico(request.diagnostico());
+        consulta.setExames(request.exames());
+        consulta.setSintomas(resolverSintomas(request.sintomas()));
+        consulta.setMedicamentos(resolverMedicamentos(request.medicamentos()));
 
         return ConsultaResponse.fromEntity(consultaRepository.save(consulta));
     }
@@ -95,5 +95,36 @@ public class ConsultaService {
         }
         consulta.setStatus(StatusConsulta.CANCELADA);
         consultaRepository.save(consulta);
+    }
+
+    private List<Sintoma> resolverSintomas(List<String> nomes) {
+        if (nomes == null) return new ArrayList<>();
+        List<Sintoma> resultado = new ArrayList<>();
+        for (String nome : nomes) {
+            Sintoma sintoma = sintomaRepository.findByNomeIgnoreCase(nome)
+                    .orElseGet(() -> {
+                        Sintoma novo = new Sintoma();
+                        novo.setNome(nome);
+                        return sintomaRepository.save(novo);
+                    });
+            resultado.add(sintoma);
+        }
+        return resultado;
+    }
+
+    private List<Medicamento> resolverMedicamentos(List<String> nomes) {
+        if (nomes == null) return new ArrayList<>();
+        List<Medicamento> resultado = new ArrayList<>();
+        for (String nome : nomes) {
+            Medicamento medicamento = medicamentoRepository.findByNomeIgnoreCase(nome)
+                    .orElseGet(() -> {
+                        Medicamento novo = new Medicamento();
+                        novo.setNome(nome);
+                        novo.setDose("");
+                        return medicamentoRepository.save(novo);
+                    });
+            resultado.add(medicamento);
+        }
+        return resultado;
     }
 }

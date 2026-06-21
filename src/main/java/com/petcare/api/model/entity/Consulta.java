@@ -23,6 +23,12 @@ public class Consulta {
 
     private String descricao;
 
+    @Column(columnDefinition = "TEXT")
+    private String diagnostico;
+
+    @Column(columnDefinition = "TEXT")
+    private String exames;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatusConsulta status = StatusConsulta.ABERTA;

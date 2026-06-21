@@ -35,7 +35,7 @@ public class PetService {
     }
 
     public List<PetResponse> listar() {
-        return petRepository.findByAtivoTrue()
+        return petRepository.findAll()
                 .stream().map(PetResponse::fromEntity).toList();
     }
 
@@ -78,7 +78,7 @@ public class PetService {
     }
 
     private void cancelarConsultasAbertas(Long petId) {
-        consultaRepository.findByPetId(petId).forEach(consulta -> {
+        consultaRepository.findByPet_Id(petId).forEach(consulta -> {
             if (consulta.getStatus() == StatusConsulta.ABERTA) {
                 consulta.setStatus(StatusConsulta.CANCELADA);
                 consultaRepository.save(consulta);

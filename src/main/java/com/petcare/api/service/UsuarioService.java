@@ -64,6 +64,13 @@ public class UsuarioService implements UserDetailsService {
         usuarioRepository.save(usuario);
     }
 
+    public void ativar(Long id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        usuario.setAtivo(true);
+        usuarioRepository.save(usuario);
+    }
+
     public void recuperarSenha(String email) {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("E-mail não encontrado"));
