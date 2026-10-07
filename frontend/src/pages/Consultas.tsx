@@ -3,7 +3,7 @@ import { auth } from "../lib/auth";
 import { BASE_URL } from "../lib/api";
 import { Button } from "../components/ui/button";
 import { Header } from "../components/ui/header";
-import { Plus, Search, X, CheckCircle, XCircle, Stethoscope, CalendarDays } from "lucide-react";
+import { X, CheckCircle, XCircle, Stethoscope, CalendarDays } from "lucide-react";
 
 // Mantendo as tipagens para o TypeScript não reclamar
 export type Consulta = { id: number; petId: number; veterinarioId: number; data: string; status: "ABERTA" | "FINALIZADA" | "CANCELADA"; descricao: string; sintomas: number[]; medicamentos: number[]; };
@@ -34,7 +34,7 @@ export default function Consultas() {
   const [medicamentos, setMedicamentos] = useState<Medicamento[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("TODAS");
+  const [statusFilter] = useState<StatusFilter>("TODAS");
 
   // Modal nova consulta (FUNCIONARIO)
   const [novaModal, setNovaModal] = useState(false);

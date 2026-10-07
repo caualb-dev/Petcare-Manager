@@ -7,7 +7,6 @@ export interface SearchBarProps extends React.InputHTMLAttributes<HTMLInputEleme
 }
 
 export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>( ({ className, containerClassName, ...props }, ref) => {
-  const baseStyles = "px-5 py-2 rounded-xl font-texto font-semibold";
   return (
     <div 
         className={cn(
